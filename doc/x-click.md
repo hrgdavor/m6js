@@ -13,9 +13,7 @@ Code is looking for 3 DOM attributes that additionally can customize the behavio
 
 Leaving those attributes is intentional as it provides a nice CSS target for styling
 
-In case of multiple clickable elements with attributes `event` or `action` the most inner child's value for each attribute is used.
-
-#### -> `event`
+In case of multiple clickable elements with attributes `event` or `action` the most inner child's value for each attribute is used.​	
 
 
 
@@ -33,7 +31,7 @@ caught by implementing `on_eventName(event){...}`
 - `action:'default'` - can be overridden by adding attribute: `action="whatever"`
 - `required: true` - force event handling code to throw error if no handler is found
 - `direction:'parent'` - utility containers like loops, tables or layout utilities should forward the event down 
-  - because those containers are used inside a Component's template and intention is for component to catch the event instead of the utility.
+  - because those containers are used inside a Component's template and intention is for component (who's template we are writing at the moment) to catch the event.
 
 
 ## usage examples
