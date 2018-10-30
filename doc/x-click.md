@@ -11,9 +11,9 @@ Code is looking for 3 DOM attributes that additionally can customize the behavio
 - `action` - optional distinction needed for cases when multiple elements are clickable with different behaviour 
 - `disabled` - disables the execution
 
-Leaving those attributes is intentional as it provides a nice CSS target for styling
+Using attributes for these options is intentional as it also provides a nice CSS target for styling.
 
-In case of multiple clickable elements with attributes `event` or `action` the most inner child's value for each attribute is used.​	
+A more complex user-case can have multiple clickable elements with attributes `event` or `action` (even one inside another) so the most inner child's value for each attribute is used as the value.​
 
 
 
