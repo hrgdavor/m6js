@@ -4,7 +4,7 @@
 
 The `x-click` directive will catch click event on the element and all of it's children. 
 
-Code is looking for 3 DOM attributes that additionally can customize the behaviour. 
+Code is looking for 3 DOM attributes that can additionally customize the behaviour. 
 
 - `event` - defines event-name 
   - alternatively  `x-click event="eventName"` can be shortened to  `x-click="eventName"` 
@@ -19,10 +19,10 @@ A more complex user-case can have multiple clickable elements with attributes `e
 
 ## catching events
 
-caught by implementing `on_eventName(event){...}`
+events are caught by implementing `on_eventName(event){...}` method for the component 
 
-- `save` - caught by implementing `on_save(event){...}`
-- `deleteUser` - caught by implementing `on_deleteUser(event){...}`
+- `save` is caught by implementing `on_save(event){...}`
+- `deleteUser` is caught by implementing `on_deleteUser(event){...}`
 
 ## event defaults
 
