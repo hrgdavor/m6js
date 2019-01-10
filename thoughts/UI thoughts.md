@@ -1,6 +1,6 @@
 # events
 
-- `listen` function returns callback that can later be used to remove the listener
+- `listen` function returns a callback function that can later be used to remove the listener
 
 # component creation
 
