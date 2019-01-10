@@ -1,0 +1,8 @@
+{
+  "retainLines": true,
+  "presets": [],
+  "plugins": [
+  	["../../babel-plugin-j6x/index", {forTemplate:true}]
+  ],
+  "ignore": ["node_modules"]
+}

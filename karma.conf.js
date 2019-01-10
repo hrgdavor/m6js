@@ -21,11 +21,12 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      // 'src/mi2.js',
+      'src/j6x.js',
       // 'src/comp.js',
       'src/*.js',
 
        'spec/*.js',
+       'templateSpec/*.js',
 
        {pattern: 'spec/test.json', included: false}
     ],
@@ -39,7 +40,8 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'spec/jsx/*.js' : ['babel']
+      'spec/*.js' : ['babel'],
+      'templateSpec/*.js' : ['babel'],
     },
 
 
