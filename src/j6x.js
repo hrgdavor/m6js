@@ -63,6 +63,15 @@ j6x.num = function(str){
     return isNaN(n) ? 0:n;
 };
 
+j6x.TRANS = {}
+j6x.t = function(code){ return j6x.TRANS[code] || code; }
+
+j6x.h = function(tag,attr, directive){
+    // using j6x.TagDef class for security (if needed)
+    // user input that looks like tag definition will not pass "instanceof j6x.TagDef" test
+    return new j6x.TagDef(tag, attr, directive, Array.prototype.slice.call(arguments,2) );
+}
+
 
 j6x.TagDef = function(tag, attr, directive, children){
     this.tag = tag;
@@ -84,7 +93,7 @@ j6x.NodeUpdater = class NodeUpdater{
         var val = newValue = this.func();
         // TODO perform vdiff here
         // quote from JSX: false, null, undefined, and true are valid children. They simply don’t render
-        // .. so to be inline with React JSX
+        // .. so to be somewhat inline with React JSX we will keep the TextNode, it will just be '' in those cases
         if(newValue instanceof Boolean || newValue === void 0 || newValue === null ) newValue = '';
 
         // TODO VDIFF 
@@ -124,21 +133,23 @@ j6x.AttrUpdater = class AttrUpdater{
     }
 }
 
-j6x.h = function(tag,attr, directive){
-    // using j6x.TagDef class for security (if needed)
-    // user input that looks like tag definition will not pass "instanceof j6x.TagDef" test
-    return new j6x.TagDef(tag, attr, directive, Array.prototype.slice.call(arguments,2) );
-}
-
-j6x.TRANS = {}
-j6x.t = function(code){ return j6x.TRANS[code] || code; }
-
+j6x.insertAttr = function(n, def_attr, directive, updaters){
+    for (var a in def_attr) {
+        var value = def_attr[a];
+        if(value && (value instanceof Function)){
+            // preapre updater for attribute value
+            updaters.push(new j6x.AttrUpdater(n, a, value));
+        }else{
+            n.setAttribute(a, value);
+        }
+    }
+};
 
 j6x.addJsx = function(parent, def, before, updaters, parentComp){
     
     updaters = updaters || [];
     // quote from JSX: false, null, undefined, and true are valid children. They simply don’t render
-    // .. so to be inline with React JSX
+    // ... so to be inline with React JSX: 
     if( (def instanceof Boolean) || def === void 0 || def === null || def === '' ) return;
 
     if(def instanceof Function){
@@ -165,76 +176,27 @@ j6x.addJsx = function(parent, def, before, updaters, parentComp){
         }else{
             var n = document.createElement(def.tag);
             if (def.attr) {
-                for (var a in def.attr) {
-                        var value = def.attr[a];
-                        if(value && (value instanceof Function)){
-                            // preapre updater for attribute value
-                            updaters.push(new j6x.AttrUpdater(n, a, value));
-                        }else{
-                            n.setAttribute(a, value);
-                        }
-                    }
-                }
-                if(parent) parent.insertBefore(n, before);
-                if (def.children && def.children.length) {
-                    j6x.addJsx(n, def.children, null, updaters);
-                }
-                return n;
+                if(parentComp) parentComp.initNodeAttr(n,def.attr, directive);
+                j6x.insertAttr(n,def.attr, updaters);
             }
-    }else{
-            // TODO join text node updating and value handling
-            if(def === null || def === void 0) def = '';        
-            if(typeof(def) != 'string') def = ''+def;
-
-            var n = document.createTextNode(def);
             if(parent) parent.insertBefore(n, before);
+            if (def.children && def.children.length) {
+                j6x.addJsx(n, def.children, null, updaters, parentComp);
+            }
             return n;
+        }
+    }else{
+        // TODO join text node updating and value handling
+        if(typeof(def) != 'string') def = ''+def;
+
+        var n = document.createTextNode(def);
+        if(parent) parent.insertBefore(n, before);
+        return n;
     }
     // set attributes immediately if there is no parent component to handle the task
     if(!parentComp){
         updaters.forEach(function(u){u.update();});
     }
 }
-
-j6x.directives = { };
-
-j6x.registerDirective = function(name, dir){
-    var nameArr = name.split('-');
-
-    function add(obj,idx){
-        if(idx < nameArr.length -1){
-            if(!obj[nameArr[idx]]) obj[nameArr[idx]] = {};
-            add(obj[nameArr[idx]], idx+1); 
-        }else{
-            obj[nameArr[idx]] = dir;
-        }
-    }
-    add(j6x.directives, 0);
-}
-
-j6x.runAttrDirective = function(el, comp, options, updaters, parentComp, src, prefix){
-    if(!options) return;
-    for(var p in options){
-        if(src[p]){
-            var func = src[p];
-            if(func) func(el, comp, options[p], updaters, parentComp);
-        }else{
-            // restore the attribute value if no directive present
-            var attName = prefix+p;
-            var val = options[p]._;
-            if(val && val instanceof Function){
-                    updaters.push(j6x.makeAttrUpdater(el, attName, val));
-            }else{
-                if(!comp) comp = new mi2(el);
-                    comp.attr(attName,val);
-            }
-        }
-    }
-};
-
-j6x.registerDirective('x', function(el, comp, options, updaters, parentComp){
-    if(!options) return;
-    j6x.runAttrDirective(el, comp, options, updaters, parentComp, j6x.directives.x, 'x-');
-});
 
 }());

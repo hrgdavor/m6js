@@ -23,17 +23,8 @@ describe( 'x-click', function () {
 
 	});
 
-	it(' / extractDirectives', function () {
-		// console.log('j6x.directives',j6x.directives);
-
-		var dirs = j6x.extractDirectives({'x-click':'test1', x:'test2'});
-
-		expect(dirs.x.click._).toEqual('test1');
-
-	});
-
 	it(' / x-click node', function () {
-		var comp = j6x.addComp(null, {tag: 'B', attr:{as:'test/XClickTestJsx'}});
+		var comp = j6x.addComp(null, <b as="test/XClickTestJsx"/>);
 
 		comp.el.firstChild.click();
 

@@ -170,7 +170,7 @@ if attribute is not present.
 @param {object} def default value if attribute is not present
 */
 j6x.dom_register('attrNum', true, function(name, def){
-	return j6x.num( this.attrDef(name, def) );
+	return j6x.num( j6x.h_attrDef(name, def) );
 });
 
 /** Boolean from attribute
@@ -221,7 +221,7 @@ j6x.dom_register('classIf', false, function(node, toAdd, condition){
 @instance
 @memberof mi2JS(core).NodeWrapper
 */
-j6x.dom_register('classIf', false, function(node, toAdd, condition){
+j6x.dom_register('classUnless', false, function(node, toAdd, condition){
 	if(condition)
 		node.classList.remove(toAdd);
 	else
