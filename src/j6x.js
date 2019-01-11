@@ -63,6 +63,68 @@ j6x.num = function(str){
     return isNaN(n) ? 0:n;
 };
 
+/** Uses {@link j6x(core).fixEvent}. Listen for event on an object. Any object that has either 
+addEventListener or attachEvent.
+
+@function listen
+@memberof j6x(core)
+@param {Object} obj object that will generate the event
+@param {String} evt event name
+@param {Function} fnc callback
+@param {Object} self callback function scope ( bind will be performed )
+@param {boolean|object} options options parameter for addEventListener
+*/
+j6x.listen = function ( obj, evt, fnc, self, options ){
+
+    if(typeof(fnc) == 'string') fnc = self[fnc];
+    var listener = function(evt){
+        fnc.call(self || obj, j6x.fixEvent(evt));
+    };
+
+    if (obj.addEventListener){
+        obj.addEventListener(evt,listener,options);
+        return function(){obj.removeEventListener(evt,listener,options)};
+    }else{
+        throw new Error('unable to add listener to '+obj);
+    }
+};
+
+j6x.isComponentNode = function(el){
+    return el.getAttribute('as') ? true:false;
+}
+
+/** Used by {@link j6x(core).listen}. Do some cleaning on the event object provided by the browser, for easier handling of browser differences.
+This is likely more extensive in other libraries. Override it if you need more.
+
+@function fixEvent
+@memberof j6x(core)
+@param {Event} evt Browser  event
+*/
+j6x.fixEvent = function(evt){
+    evt = evt || window.event;
+    evt.stop = function() {
+        if(this.preventDefault){ 
+            this.preventDefault(); 
+            this.stopPropagation(); 
+        } else {
+            this.returnValue = false;
+        }
+    };
+
+    evt.target = evt.target || evt.srcElement;
+    
+    evt.pointerX = function() {
+        return this.pageX || (this.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft));
+    };
+    
+    evt.pointerY = function() {
+        return this.pageY || (this.clientY + (document.documentElement.scrollTop || document.body.scrollTop));
+    };
+
+    return evt;
+};
+
+
 j6x.TRANS = {}
 j6x.t = function(code){ return j6x.TRANS[code] || code; }
 
@@ -146,7 +208,7 @@ j6x.insertAttr = function(n, def_attr, directive, updaters){
 };
 
 j6x.addJsx = function(parent, def, before, updaters, parentComp){
-    
+
     updaters = updaters || [];
     // quote from JSX: false, null, undefined, and true are valid children. They simply don’t render
     // ... so to be inline with React JSX: 
@@ -163,22 +225,20 @@ j6x.addJsx = function(parent, def, before, updaters, parentComp){
 
     } else if(def instanceof Array){
         def.forEach(function (c) { 
-            j6x.addJsx(parent, c, before, updaters);
+            j6x.addJsx(parent, c, before, updaters, parentComp);
         });
 
     } else if(def instanceof j6x.TagDef){
         
         if(def.tag == 'template' || def.tag == 'frag'){
             def.children.forEach(function (c) { 
-                j6x.addJsx(parent, c, before, updaters);
+                j6x.addJsx(parent, c, before, updaters, parentComp);
             });        
         
         }else{
             var n = document.createElement(def.tag);
-            if (def.attr) {
-                if(parentComp) parentComp.initNodeAttr(n,def.attr, directive);
-                j6x.insertAttr(n,def.attr, updaters);
-            }
+            if(parentComp) parentComp.initNodeAttr(n, def.attr, def.directive);
+            j6x.insertAttr(n,def.attr, updaters);
             if(parent) parent.insertBefore(n, before);
             if (def.children && def.children.length) {
                 j6x.addJsx(n, def.children, null, updaters, parentComp);

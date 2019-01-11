@@ -3,11 +3,9 @@
 j6x._xClickCancel = function(el){
 	
 	// if disabled at any level 
-	if(el.hasAttribute(mi2JS.disabledAttribute)) return true;
+	if(el.hasAttribute(j6x.disabledAttribute)) return true;
 	
-	// do not mess with other components
-	comp = el.getAttribute('as');
-	return (comp && el != this.el && !(comp == 'Base' || comp =='Base' )); 
+	return (j6x.isComponentNode(el) && el != this.el && !(comp == 'Base' || comp =='Base' )); 
 };
 
 j6x._xClickEventData = function(el,evt, end){
@@ -43,7 +41,9 @@ j6x._xClickListen = function(n, options, updaters, parentComp){
 		try{
 			var evtData = j6x._xClickEventData(evt.target, evt,n);
 			var context;
-			var attrValue = options._;
+
+			// var attrValue = options._;
+			var attrValue = options;
 			if(typeof attrValue == 'function'){
 				context = attrValue(evt, evtData.action);
 			}else if(typeof attrValue == 'string'){
@@ -52,12 +52,7 @@ j6x._xClickListen = function(n, options, updaters, parentComp){
 
 			evtData.context = context;
 
-			// WORKAROUND to be compatible with base/Button
-			// changing fireEvent recognitionf of skipping the initiator component
-			// would break base/Button behavior, so this trick is used to make it work along
-			evtData.__src = parentComp;
-
-			if(evtData.name && !evt.cancelClick){
+			if(evtData.name && !evtData.cancelClick){
 				parentComp.fireEvent(evtData);
 			} 
 		}catch(e){

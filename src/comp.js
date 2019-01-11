@@ -1,7 +1,7 @@
 (function(j6x){
 
 /**
-@namespace mi2JS(comp)
+@namespace j6x(comp)
 */
 
 // if the script is loaded again, it will reuse existing j6x.compData
@@ -10,7 +10,7 @@ var j6Proto = j6x.prototype;
 
 /**
 @function addCompClass
-@memberof mi2JS(comp)
+@memberof j6x(comp)
 */
 j6x.addCompClass = function(name, supName, initializer){
 	if(compData.def[name] || compData.later[name]) console.error('Component with same name already defined '+name);
@@ -20,7 +20,7 @@ j6x.addCompClass = function(name, supName, initializer){
 
 /**
 @function initComp
-@memberof mi2JS(comp)
+@memberof j6x(comp)
 */
 j6x.initComp = function(name, supName, initializer){
 	var comp = compData.def[name];
@@ -42,13 +42,13 @@ j6x.initComp = function(name, supName, initializer){
 
 /**
 @function checkComp
-@memberof mi2JS(comp)
+@memberof j6x(comp)
 */
 j6x.checkComp = function(name){ return compData.def[name] || compData.later[name]; }
 
 /**
 @function getComp
-@memberof mi2JS(comp)
+@memberof j6x(comp)
 */
 j6x.getComp = function(name, el){ 
 	var compDef = compData.def[name];
@@ -65,10 +65,10 @@ j6x.getComp = function(name, el){
 };
 
 /** 
-@namespace mi2JS(comp)
+@namespace j6x(comp)
 
 @function makeComp
-@memberof mi2JS(comp)
+@memberof j6x(comp)
 */
 j6x.addComp = function(parNode, jsx, parent){
 	var node = j6x.addJsx(parNode, jsx, parent);
@@ -80,7 +80,7 @@ j6x.addComp = function(parNode, jsx, parent){
 to be live after created 
 
 @function makeComp
-@memberof mi2JS(comp)
+@memberof j6x(comp)
 
 */
 j6x.makeComp = function(el, jsx, parent){
@@ -95,7 +95,7 @@ automatic component template parsing (parseChildren) and initialization is done
  in the second run on all previously created components 
 
 @function constructComp
-@memberof mi2JS(comp)
+@memberof j6x(comp)
  */
 j6x.constructComp = function(el, jsx, parent, updaters){
 	try{
@@ -125,7 +125,7 @@ j6x.constructComp = function(el, jsx, parent, updaters){
 			j6x.insertHtml(el, el.jsxChildren, null, updaters);
 			delete el.jsxChildren;
 		}
-
+		c.fireEvent('create');
 		return c;
 
 	}catch(e){

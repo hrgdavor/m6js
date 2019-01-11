@@ -12,7 +12,7 @@ describe( 'x-click', function () {
 
 		proto.template = function(state, params, self){
 			return <template>
-				<div disabled x-click={(evt,action)=>{return 11;}} action="aaaa" event="save"/>
+				<b x-click={(evt,action)=>{return 11;}} action="aaaa" event="save"/>
 				<div x-click="save">
 					<button action="b1">b1</button>
 					<button action="b2">b2</button>
@@ -25,13 +25,14 @@ describe( 'x-click', function () {
 
 	it(' / x-click node', function () {
 		var comp = j6x.addComp(null, <b as="test.XClickTestJsx"/>);
-		console.log('comp.el',comp.el);
+		
 		comp.el.firstChild.click();
 
 		expect(comp.saveContext).toEqual(11);
 		expect(comp.saveAction).toEqual('aaaa');
 
-		var bt1 = comp.el.firstChild.nextSibling.firstChild;
+		console.log(comp.el.firstChild.nextSibling);
+		var bt1 = comp.el.firstChild.nextSibling.firstElementChild;
 		bt1.click();
 		expect(comp.saveAction).toEqual('b1');
 

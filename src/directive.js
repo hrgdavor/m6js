@@ -15,7 +15,7 @@ j6x.registerDirective = function(name, dir){
     add(j6x.directives, 0);
 }
 
-j6x.runAttrDirective = function(el, comp, options, updaters, parentComp, src, prefix){
+j6x.runAttrDirective = function(el, comp, options, updaters, parentComp, src=j6x.directives, prefix=''){
     if(!options) return;
     for(var p in options){
         if(src[p]){
