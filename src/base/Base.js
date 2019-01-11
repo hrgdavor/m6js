@@ -40,17 +40,41 @@ function(h,t,proto, superProto, comp, superClass){
 	@param {Element} el
 	@param {object} parent
 	*/
-	proto.construct = function(el,attr, directive, children){
+	proto.construct = function(el, attr, directive, parent){
 		this.state = {};
 		this.params = {};
-		this._children = [];
+		this.children = [];
 		this.el = el;
 	};
 
 	proto.__init = function(){
 		if(!this.__initialized){
 			this.__initialized = true;
+			var def = this.template(this.state, this.params, this);
+			if(def)	j6x.addJsx(this.el, def, null, this._updaters, this);
+			this.initUpdaters();
+			this.initChildren();
+			//this.fireEvent('init');
+		}
+	};
 
+	proto.initUpdaters = function(){
+		if(this._updaters) for(var i=this._updaters.length-1; i>=0; i--){
+			this._updaters[i].update();
+		}		
+	};
+
+	/** 
+	@instance
+	@function initChildren
+	@memberof mi2JS(comp).Base
+	@param {Object} object
+	*/
+	proto.initChildren = function(){
+		var c;
+		for(var i=0; i<this.children.length; i++){
+			c = this.children[i];
+			if(!c.lazyInit) c.__init();
 		}
 	};
 

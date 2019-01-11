@@ -3,14 +3,14 @@ describe( 'x-click', function () {
 	var t = j6x.t;
 
 	j6x.addCompClass('test.XClickTestJsx', 'Base',
-	function(proto, superProto, comp, superComp){
+	function(h,t,proto, superProto, comp, superComp){
 
 		proto.on_save = function(evt){
 			this.saveContext = evt.context;
 			this.saveAction = evt.action;
 		};
 
-		proto.initTemplate = function(h,t,state){
+		proto.template = function(state, params, self){
 			return <template>
 				<div disabled x-click={(evt,action)=>{return 11;}} action="aaaa" event="save"/>
 				<div x-click="save">
@@ -25,7 +25,7 @@ describe( 'x-click', function () {
 
 	it(' / x-click node', function () {
 		var comp = j6x.addComp(null, <b as="test.XClickTestJsx"/>);
-
+		console.log('comp.el',comp.el);
 		comp.el.firstChild.click();
 
 		expect(comp.saveContext).toEqual(11);

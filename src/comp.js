@@ -72,7 +72,7 @@ j6x.getComp = function(name, el){
 */
 j6x.addComp = function(parNode, jsx, parent){
 	var node = j6x.addJsx(parNode, jsx, parent);
-	return j6x.makeComp(node, null, parent, parNode);
+	return j6x.makeComp(node, jsx, parent);
 }
 
 /**
@@ -83,8 +83,8 @@ to be live after created
 @memberof mi2JS(comp)
 
 */
-j6x.makeComp = function(el, compName, parent, parNode){
-	var c = j6x.constructComp(el, compName, parent);
+j6x.makeComp = function(el, jsx, parent){
+	var c = j6x.constructComp(el, jsx, parent);
 	if(!c.lazyInit) c.__init();
 	return c;
 };
@@ -97,23 +97,20 @@ automatic component template parsing (parseChildren) and initialization is done
 @function constructComp
 @memberof mi2JS(comp)
  */
-j6x.constructComp = function(el, compName, parent, updaters){
+j6x.constructComp = function(el, jsx, parent, updaters){
 	try{
 
 		// sanitize, to allow === null check to work later
 		if(!parent) parent = null;
 
-		if( !compName ){
-			compName = el.getAttribute('as');
-			if(!compName) compName = compData.tags[el.tagName];
-		}
+		var compName = el.getAttribute('as') || (jsx.attr ? jsx.attr.as: 'Base');
 
 		el.setAttribute('as', compName);
 		el.compRefId = j6x.compData.counterSeq++;
 
 		var compDef = this.getComp(compName, el);
 		var c = new compDef();
-		c.construct(el, parent);
+		c.construct(el, jsx.attr, jsx.directive, parent);
 		c.setParent(parent);
 		updaters = updaters || (parent ? parent._updaters : []);
 
