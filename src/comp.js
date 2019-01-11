@@ -5,44 +5,37 @@
 */
 
 // if the script is loaded again, it will reuse existing j6x.compData
-var compData = j6x.compData = j6x.compData || {def:{}, tpl:{}, later:{}, tags:{}, counterSeq:0};
+var compData = j6x.compData = j6x.compData || {def:{}, later:{}, __counterSeq:0};
 var j6Proto = j6x.prototype;
 
 /**
 @function addCompClass
 @memberof mi2JS(comp)
 */
-j6x.addCompClass = function(name, supName, tpl, initializer){
+j6x.addCompClass = function(name, supName, initializer){
 	if(compData.def[name] || compData.later[name]) console.error('Component with same name already defined '+name);
-	compData.later[name]  = function(){ return j6x.initComp(name, supName, tpl, initializer); };
+	if(typeof initializer != 'function') throw new Error('Initializer not a function');
+	compData.later[name]  = function(){ return j6x.initComp(name, supName, initializer); };
 };
 
 /**
 @function initComp
 @memberof mi2JS(comp)
 */
-j6x.initComp = function(name, supName, tpl, initializer){
+j6x.initComp = function(name, supName, initializer){
 	var comp = compData.def[name];
 
-	var superClass = this.getComp(supName);
+	var superClass = supName == '' ? j6x.Dom:this.getComp(supName);
 	if(!comp){
-		comp = eval('(function '+name.replace('/','_')+'(){})');
+		comp = eval('(function '+name.replace(/[\.\/]/g,'_')+'(){})');
 		comp.superClass = superClass;
 		j6x.extend( comp, superClass );
 	}
 	// else: 
 	// hapens when reloading component in runtime
 	// changes to the component prototype can be applied to the already instantiated components
-	initializer(comp.prototype, superClass.prototype, comp, superClass);
+	initializer(j6x.h, j6x.t, comp.prototype, superClass.prototype, comp, superClass);
 	comp.compName = name;
-
-	if(tpl && tpl == 'extend:') 
-		tpl = this.getCompCompTpl(supName);
-	else if(tpl && tpl.length > 7 && tpl.substring(0,7) == 'extend:') 
-		tpl = this.getCompCompTpl(tpl.substring(7));
-
-	if(tpl || tpl === '') 
-		compData.tpl[name] = tpl;
 
 	return (compData.def[name] = comp);
 };
@@ -65,7 +58,7 @@ j6x.getComp = function(name, el){
 	}
 	if(!compDef) {
 		var msg = 'Component not found: '+name;
-		console.log(msg,el);
+		console.log(msg,el, name);
 		throw new Error(msg);
 	}
 	return compDef; 
@@ -120,7 +113,6 @@ j6x.constructComp = function(el, compName, parent, updaters){
 
 		var compDef = this.getComp(compName, el);
 		var c = new compDef();
-		c.__template = this.getCompCompTpl(compName);
 		c.construct(el, parent);
 		c.setParent(parent);
 		updaters = updaters || (parent ? parent._updaters : []);

@@ -22,8 +22,9 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'src/j6x.js',
-      // 'src/comp.js',
+      'src/comp.js',
       'src/*.js',
+      'src/base/*.js',
 
        'spec/*.js',
        'templateSpec/*.js',

@@ -2,7 +2,7 @@ describe( 'x-click', function () {
 	var h = j6x.h;
 	var t = j6x.t;
 
-	j6x.addCompClass('test/XClickTestJsx', 'Base', '',
+	j6x.addCompClass('test.XClickTestJsx', 'Base',
 	function(proto, superProto, comp, superComp){
 
 		proto.on_save = function(evt){
@@ -24,7 +24,7 @@ describe( 'x-click', function () {
 	});
 
 	it(' / x-click node', function () {
-		var comp = j6x.addComp(null, <b as="test/XClickTestJsx"/>);
+		var comp = j6x.addComp(null, <b as="test.XClickTestJsx"/>);
 
 		comp.el.firstChild.click();
 
