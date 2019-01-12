@@ -20,16 +20,15 @@ j6x.runAttrDirective = function(el, comp, options, updaters, parentComp, src=j6x
     for(var p in options){
         if(src[p]){
             var func = src[p];
-            if(func) func(el, comp, options[p], updaters, parentComp);
+            if(func) func(el, comp, options[p], updaters, parentComp, options);
         }else{
             // restore the attribute value if no directive present
             var attName = prefix+p;
             var val = options[p]._;
             if(val && val instanceof Function){
-                    updaters.push(j6x.makeAttrUpdater(el, attName, val));
+                updaters.push(new j6x.AttrUpdater(el, attName, val));
             }else{
-                if(!comp) comp = new mi2(el);
-                    comp.attr(attName,val);
+                j6x.h_attr(el,attName,val);
             }
         }
     }

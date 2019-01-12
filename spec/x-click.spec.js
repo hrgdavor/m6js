@@ -12,7 +12,7 @@ describe( 'x-click', function () {
 
 		proto.template = function(state, params, self){
 			return <template>
-				<b x-click={(evt,action)=>{return 11;}} action="aaaa" event="save"/>
+				<b x-click={(evt,action)=>{return 11;}} action="aaaa" event="save" x-click-name/>
 				<div x-click="save">
 					<button action="b1">b1</button>
 					<button action="b2">b2</button>
@@ -31,7 +31,6 @@ describe( 'x-click', function () {
 		expect(comp.saveContext).toEqual(11);
 		expect(comp.saveAction).toEqual('aaaa');
 
-		console.log(comp.el.firstChild.nextSibling);
 		var bt1 = comp.el.firstChild.nextSibling.firstElementChild;
 		bt1.click();
 		expect(comp.saveAction).toEqual('b1');
