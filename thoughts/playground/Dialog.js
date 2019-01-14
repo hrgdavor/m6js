@@ -1,4 +1,4 @@
-j6x.addCompClass('base.Dialog', 'base.Base',
+j6x.addCompClass('base.Dialog', 'Base',
 
 function(h,t,proto, superProto, comp, superComp){
 	var base = j6x.base;

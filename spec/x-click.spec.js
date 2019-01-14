@@ -2,7 +2,7 @@ describe( 'x-click', function () {
 	var h = j6x.h;
 	var t = j6x.t;
 
-	j6x.addCompClass('test.XClickTestJsx', 'Base',
+	j6x.addCompClass('test.XClickTestJsx', '',
 	function(h,t,proto, superProto, comp, superComp){
 
 		proto.on_save = function(evt){
@@ -25,6 +25,7 @@ describe( 'x-click', function () {
 
 	it(' / x-click node', function () {
 		var comp = j6x.addComp(null, <b as="test.XClickTestJsx"/>);
+
 		
 		comp.el.firstChild.click();
 
@@ -43,7 +44,11 @@ describe( 'x-click', function () {
 		bt3.click();
 		// no change as b3 is disabled
 		expect(comp.saveAction).toEqual('b2');
-
 	});
+
+	it(' / x-click component declaration', function () {
+		expect(j6x.comp.test.XClickTestJsx).toEqual(j6x.comp['test.XClickTestJsx']);
+	});
+
 
 });

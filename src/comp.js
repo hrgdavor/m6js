@@ -5,7 +5,8 @@
 */
 
 // if the script is loaded again, it will reuse existing j6x.compData
-var compData = j6x.compData = j6x.compData || {def:{}, later:{}, __counterSeq:0};
+var compData = j6x.comp = j6x.comp || {__later:{}, __counterSeq:0};
+var compDataLater = j6x.comp.__later;
 var j6Proto = j6x.prototype;
 
 /**
@@ -13,9 +14,9 @@ var j6Proto = j6x.prototype;
 @memberof j6x(comp)
 */
 j6x.addCompClass = function(name, supName, initializer){
-	if(compData.def[name] || compData.later[name]) console.error('Component with same name already defined '+name);
+	if(compData[name] || compDataLater[name]) console.error('Component with same name already defined '+name);
 	if(typeof initializer != 'function') throw new Error('Initializer not a function');
-	compData.later[name]  = function(){ return j6x.initComp(name, supName, initializer); };
+	compDataLater[name]  = function(){ return j6x.initComp(name, supName, initializer); };
 };
 
 /**
@@ -23,9 +24,9 @@ j6x.addCompClass = function(name, supName, initializer){
 @memberof j6x(comp)
 */
 j6x.initComp = function(name, supName, initializer){
-	var comp = compData.def[name];
+	var comp = compData[name];
 
-	var superClass = supName == '' ? j6x.Dom:this.getComp(supName);
+	var superClass = name == 'Base' ? j6x.Dom:this.getComp(supName || 'Base');
 	if(!comp){
 		comp = eval('(function '+name.replace(/[\.\/]/g,'_')+'(){})');
 		comp.superClass = superClass;
@@ -37,24 +38,37 @@ j6x.initComp = function(name, supName, initializer){
 	initializer(j6x.h, j6x.t, comp.prototype, superClass.prototype, comp, superClass);
 	comp.compName = name;
 
-	return (compData.def[name] = comp);
+	var nameArr = name.split('.');
+    function add(obj,idx){
+        if(idx < nameArr.length -1){
+            if(!obj[nameArr[idx]]) obj[nameArr[idx]] = {};
+            add(obj[nameArr[idx]], idx+1); 
+        }else{
+            obj[nameArr[idx]] = comp;
+        }
+    }
+    if(nameArr.length > 1) add(compData, 0);
+
+
+	return (compData[name] = comp);
 };
 
 /**
 @function checkComp
 @memberof j6x(comp)
 */
-j6x.checkComp = function(name){ return compData.def[name] || compData.later[name]; }
+j6x.checkComp = function(name){ return compData[name] || compDataLater[name]; }
 
 /**
 @function getComp
 @memberof j6x(comp)
 */
-j6x.getComp = function(name, el){ 
-	var compDef = compData.def[name];
-	if(!compDef && compData.later[name]){
-		// initialize the parent component by calling the function in compData.later
-		compDef = compData.later[name]();
+j6x.getComp = function(name){ 
+	var compDef = compData[name];
+	if(!compDef && compDataLater[name]){
+		// initialize the parent component by calling the function in compDataLater
+		compDef = compDataLater[name]();
+		delete compDataLater[name];
 	}
 	if(!compDef) {
 		var msg = 'Component not found: '+name;
@@ -106,7 +120,7 @@ j6x.constructComp = function(el, jsx, parent, updaters){
 		var compName = el.getAttribute('as') || (jsx.attr ? jsx.attr.as: 'Base');
 
 		el.setAttribute('as', compName);
-		el.compRefId = j6x.compData.counterSeq++;
+		el.compRefId = compData.__counterSeq++;
 
 		var compDef = this.getComp(compName, el);
 		var c = new compDef();

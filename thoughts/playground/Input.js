@@ -1,4 +1,4 @@
-j6x.addCompClass('base.Input', 'base.InputBase',
+j6x.addCompClass('base.Input', 'InputBase',
 
 function(h,t,proto, superProto, comp, superComp){
 	var base = j6x.base;

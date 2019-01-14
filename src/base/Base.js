@@ -309,3 +309,5 @@ this.fireEvent({name:'submit', fireTo:'parent', domEvent:evt});
 	proto.isTransitive = function(evt){ return false; };
 
 });
+
+j6x.getComp('Base');

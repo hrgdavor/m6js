@@ -1,4 +1,4 @@
-j6x.addCompClass('admin.UserEdit', 'base.Component',
+j6x.addCompClass('admin.UserEdit', '',
 
 function(h,t,proto, superProto, comp, superComp){
 	var base = j6x.base;
@@ -40,9 +40,9 @@ function(h,t,proto, superProto, comp, superComp){
 	proto.template = function(state, params){
 
 return <div class="form">
-	<base.Input p="items.id"/>
-	<base.Input name="id"/>
-	<base.Input p-items="id"/>
+	<Input p="items.id"/>
+	<Input name="id"/>
+	<Input p-items="id"/>
 
 	<div class="tabButtons">
 		<button p-tabs="users">{'users'}</button>
@@ -53,29 +53,29 @@ return <div class="form">
 
 	<div class="form-group">
 		<label>{'name'}:</label>
-		<base.Input name="name" class="form-input"/>
+		<Input name="name" class="form-input"/>
 	</div>
 	<div class="form-group">
 		<label>{'username'}:</label>
-		<base.Input p="items.username" class="form-input"/>
+		<Input p="items.username" class="form-input"/>
 	</div>
 	<div class="form-group">
 		<label>{'email'}:</label>
-		<base.Input p="items.email" class="form-input"/>
+		<Input p="items.email" class="form-input"/>
 	</div>
 	<div class="form-group">
 		<label>{'password'}:</label>
-		<base.Input p="items.password" class="form-input" tpye="password" required={false}/>
+		<Input p="items.password" class="form-input" tpye="password" required={false}/>
 	</div>
 	<div class="form-group" p="rolesArea">
 		<label>{'roles'}:</label>
-		<base.MultiCheck p="items.roles" class="form-input" required={false}/>
+		<MultiCheck p="items.roles" class="form-input" required={false}/>
 	</div>
 
 	<div class="form-buttons">
 		<button as="base.Button" class="bt1" event="save">{'save'}</button>
-		<base.Button tag="button" class="bt1" event="done" action="cancel">{'cancel'}</base.Button>
-		<base.Button class="bt2" event="delete" hidden={!state.isAdmin || state.id==0}>{'delete'}</base.Button>
+		<Button tag="button" class="bt1" event="done" action="cancel">{'cancel'}</base.Button>
+		<Button class="bt2" event="delete" hidden={!state.isAdmin || state.id==0}>{'delete'}</base.Button>
 	</div>
 </div>
 
