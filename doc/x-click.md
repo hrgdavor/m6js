@@ -11,13 +11,13 @@ This directive is nice alternative to `onclick` as it enables you to make an ele
 <button x-click={this.saveDocument()}>{'save'}</button>
 ```
 
-if `disabled` attribute is present, click is ignored and
+if `disabled` attribute is present, click is ignored
 
 ```jsx
 <button x-click={this.saveDocument()} disabled>{'save'}</button>
 ```
 
-you easily can style a disabled element using: `[disabled]{color:gray;}`
+and you can easily style the disabled element using: `[disabled]` CSS selector (for example: `[disabled]{color:gray;}`)
 
 
 
