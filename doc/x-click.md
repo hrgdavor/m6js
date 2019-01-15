@@ -1,8 +1,29 @@
 # x-click
 
-## triggering events
+## introduction
 
-The `x-click` directive will catch click event on the element and all of it's children. 
+This directive is nice alternative to `onclick` as it enables you to make an element clickable but implements some extra useful logic.
+
+- can be disabled via `disabled` attribute (which can then also be CSS styled)
+- ignores `doubleclick`
+
+```jsx
+<button x-click={this.saveDocument()}>{'save'}</button>
+```
+
+if `disabled` attribute is present, click is ignored and
+
+```jsx
+<button x-click={this.saveDocument()} disabled>{'save'}</button>
+```
+
+you easily can style a disabled element using: `[disabled]{color:gray;}`
+
+
+
+## advanced usage
+
+The `x-click` directive will catch click event on the element and all of it's children, and this can be used to handle multiple clickable elements with single instance.
 
 Code is looking for 3 DOM attributes that can additionally customize the behaviour. 
 
@@ -34,7 +55,7 @@ events are caught by implementing `on_eventName(event){...}` method for the comp
   - because those containers are used inside a Component's template and intention is for component (who's template we are writing at the moment) to catch the event.
 
 
-## usage examples
+## more usage examples
 
 #### 1) fire `save` event 
 
