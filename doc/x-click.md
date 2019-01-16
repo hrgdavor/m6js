@@ -1,12 +1,14 @@
 # x-click
 
-## introduction
+# introduction and basic usage
 
 This directive is a nice alternative to capturing `onclick` event, as it enables you to make an element clickable but implements some extra useful logic that you would otherwise implement in event handler.
 
 - can be disabled via `disabled` attribute (which can then also be targeted by CSS and styled)
 - ignores `doubleclick`
 - offers some more advanced usage as well
+
+The basic usage:
 
 ```jsx
 <button x-click={this.saveDocument()}>{'save'}</button>
@@ -22,7 +24,7 @@ and you can easily style the disabled element using: `[disabled]` CSS selector (
 
 
 
-## advanced usage
+# how it works
 
 The `x-click` directive works by catching `onclick` event on the element and all of it's children. This means that it can also be used to handle multiple clickable elements with single instance of `x-click`.
 
@@ -38,7 +40,7 @@ Using attributes for these customizations is intentional as it also provides a n
 
 If an attribute is present on multiple levels the most inner child's value has the priority.
 
-## call a method
+# call a method
 
 If value for `x-click` is an JSX expression
 
@@ -55,7 +57,7 @@ so the code will not be evaluated during render, but passed as code wrapped in a
 
 It is important to remember that if `x-click` is a function like above, it will always be executed (unless when `disabled`  attribute is present in clicked area).
 
-### 1) call a method and use original DOM event and action
+## 1) call a method and use original DOM event and action
 
 ```html
 <button x-click={(evt,action)=>this.showDataTable(evt.target,action)}>
@@ -67,7 +69,7 @@ The 2 parameters are always provided when calling the function that is part of J
 
 In case no function wrapper was added in the code, the default behaviour of JSX parser will be to add a wrapper around it anyways.
 
-### 2) call a method  with parameter
+## 2) call a method  with parameter
 
 ```html
 <div>
@@ -77,7 +79,7 @@ In case no function wrapper was added in the code, the default behaviour of JSX 
 </div>
 ```
 
-### 3) call  method with multiple clickable elements and different action
+## 3) call  method with multiple clickable elements and different action
 
 ```html
 <div x-click={(evt,action)=>this.changeLanguage(action)}>
@@ -103,6 +105,8 @@ function changeLanguage(lang){
 
 The same situation can happen when firing an event with multiple clickable elements and different action, but then the only choice is to implement the check inside event handler.
 
+# events (fire/catch)
+
 ## catching events
 
 events are caught by implementing `on_eventName(event){...}` method for the component 
@@ -119,10 +123,7 @@ events are caught by implementing `on_eventName(event){...}` method for the comp
   - because those containers are used inside a Component's template and intention is for component (who's template we are writing at the moment) to catch the event.
 - `action:` - is not defined and can be defined  by adding attribute: `action="whatever"`
 
-
-## firing events
-
-#### 1) fire `save` event 
+## 1) fire `save` event 
 
 ```html
 <button x-click="save">{'save'}</button>
@@ -131,7 +132,7 @@ events are caught by implementing `on_eventName(event){...}` method for the comp
 
 - event: `{name:'save'}`
 
-#### 2) fire `edit` event with context
+## 2) fire `edit` event with context
 
 action is left as an attribute and value is not caught in any way before applying the attribute's value, so it can only be string. If other value type is needed like numeric or complex object, then context mode can be used.
 
@@ -145,7 +146,7 @@ action is left as an attribute and value is not caught in any way before applyin
 - event: `{name:'edit', context:12}`
 
 
-#### 3) fire `changeLanguage` event with custom `action`
+## 3) fire `changeLanguage` event with custom `action`
 
 ```html
 <button x-click="changeLanguage" action="en">{'en'}</button>
@@ -156,32 +157,13 @@ action is left as an attribute and value is not caught in any way before applyin
 - button1 event: `{name:'changeLanguage', action='en'}`
 - button2 event: `{name:'changeLanguage', action='de'}`
 
+# ------ ----- brainstorm ----- -----
 
-
-## random thoughts / ideas
-
-#### implementation thoughts:
-
-- If `x-click` value is jsx expression, it will evaluate to a function.
-
-- in case value is function, the function will always be executed with 2 params: `func.call(compThis,domEvent,action)` this way putting custom code in to `x-click` will be executed with those 2 parameters and can be used if needed
-
-#### potential conflict situation: missing event-name
-
-unlikely an issue, but thought of
-
-in case `x-click` expression is used to provide context for event and no event-name was found
-
-- it means no event will be fired as expected
-- but `x-click` function must be evaluated as this is a use-case for putting a custom method call into `x-click`  
-- if generating context value has no side-effects, then this behaviour is not problematic
-
-
+# draft complex examples
 
 buttons (previously done with button component). 
 
 - keep: old fire to parent concept could be useful within tables, loops
-- make catching event mandatory, so it is error if nobody consumes event
 
 ```html
 <div x-click class="buttonsArea" event="done">
@@ -189,7 +171,7 @@ buttons (previously done with button component).
     <button action="save">{'save'}</button>
 
     click should not work if element is disabled
-    {event:done, action:save}
+    {event:done, action:delete}
     <button action="delete" disabled={!USER.isAdmin()}>{'delete'}</button> 
 
     nested case, should not trigger both, but the inner on 
@@ -229,6 +211,7 @@ variants
 <tr x-click={{id:state.id}} event="rowClick">
 <tr x-click={state.id}} event="rowClick">
 <tr x-click={state.$value}} event="rowClick">
+<tr x-click={(evt,action)=>this.rowClick(state.id, action)}}>
 
 function variants
 <button x-click={this.navigateBack()}>{'back'}</button>
@@ -240,3 +223,24 @@ event: dom event like click
 
 
 ```
+
+
+
+# random thoughts / ideas
+
+## implementation thoughts:
+
+- If `x-click` value is jsx expression, it will evaluate to a function.
+
+- in case value is function, the function will always be executed with 2 params: `func(domEvent,action)` this way putting custom code in to `x-click` will be executed with those 2 parameters and can be used if needed
+
+## potential conflict situation: missing event-name
+
+unlikely an issue, but thought of
+
+in case `x-click` expression is used to provide context for event and no event-name was found
+
+- it means no event will be fired as expected
+- but `x-click` function must be evaluated as this is a use-case for putting a custom method call into `x-click`  
+- if generating context value has no side-effects, then this behaviour is not problematic
+
