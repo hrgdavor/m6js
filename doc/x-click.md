@@ -2,10 +2,11 @@
 
 ## introduction
 
-This directive is nice alternative to `onclick` as it enables you to make an element clickable but implements some extra useful logic.
+This directive is a nice alternative to capturing `onclick` event, as it enables you to make an element clickable but implements some extra useful logic that you would otherwise implement in event handler.
 
-- can be disabled via `disabled` attribute (which can then also be CSS styled)
+- can be disabled via `disabled` attribute (which can then also be targeted by CSS and styled)
 - ignores `doubleclick`
+- offers some more advanced usage as well
 
 ```jsx
 <button x-click={this.saveDocument()}>{'save'}</button>
@@ -23,20 +24,84 @@ and you can easily style the disabled element using: `[disabled]` CSS selector (
 
 ## advanced usage
 
-The `x-click` directive will catch click event on the element and all of it's children, and this can be used to handle multiple clickable elements with single instance.
+The `x-click` directive works by catching `onclick` event on the element and all of it's children. This means that it can also be used to handle multiple clickable elements with single instance of `x-click`.
 
-Code is looking for 3 DOM attributes that can additionally customize the behaviour. 
+To enable advanced behaviour for multiple clickable elements the directive is looking for 3 DOM attributes that further customize the behaviour. 
 
-- `event` - defines event-name 
+- `event` - defines name of the event to fire on the component 
+  - value from the `x-click` is used as context (example: `x-click={state.id}`)
   - alternatively  `x-click event="eventName"` can be shortened to  `x-click="eventName"` 
-- `action` - optional distinction needed for cases when multiple elements are clickable with different behaviour 
-- `disabled` - disables the execution
+- `action` - optional distinction needed for cases when multiple elements are clickable with slightly different result (example: `changeLanguage` but different language code for each button) 
+- `disabled` - disables the execution(click does nothing)
 
-Using attributes for these options is intentional as it also provides a nice CSS target for styling.
+Using attributes for these customizations is intentional as it also provides a nice CSS target for styling.
 
-A more complex user-case can have multiple clickable elements with attributes `event` or `action` (even one inside another) so the most inner child's value for each attribute is used as the value.​
+If an attribute is present on multiple levels the most inner child's value has the priority.
 
+## call a method
 
+If value for `x-click` is an JSX expression
+
+```html
+<button x-click={this.showDataTable()}>{'show_data'}</button>
+```
+it is good to keep this in mind: JSX parser will actually wrap the above in arrow function:
+
+```html
+<button x-click={()=>this.showDataTable()}>{'show_data'}</button>
+```
+
+so the code will not be evaluated during render, but passed as code wrapped in arrow function that can be evaluated when needed.
+
+It is important to remember that if `x-click` is a function like above, it will always be executed (unless when `disabled`  attribute is present in clicked area).
+
+### 1) call a method and use original DOM event and action
+
+```html
+<button x-click={(evt,action)=>this.showDataTable(evt.target,action)}>
+    {'show_data'}
+</button>
+```
+
+The 2 parameters are always provided when calling the function that is part of JSX expression in the value of `x-click`. 
+
+In case no function wrapper was added in the code, the default behaviour of JSX parser will be to add a wrapper around it anyways.
+
+### 2) call a method  with parameter
+
+```html
+<div>
+    Choose language: 
+    <button x-click={this.changeLanguage('en')}>{'en'}</button>
+    <button x-click={this.changeLanguage('de')}>{'de'}</button>
+</div>
+```
+
+### 3) call  method with multiple clickable elements and different action
+
+```html
+<div x-click={(evt,action)=>this.changeLanguage(action)}>
+    Choose language:
+    <button action="en">EN</button>
+    <button action="hr">HR</button>
+</div>
+```
+it is important to check if action has value, because user can click somewhere outside the buttons and then the action is undefined. The check can be done inline in the JSX, but also can be inside `changeLanguage`  function so the JSX looks a bit cleaner. It is your choice on where the check is, but it is important to have it.
+
+implement the check in JSX:
+```html
+<div x-click={(evt,action)=>{if(action) this.changeLanguage(action)}}>
+```
+implement the check  in the function implementation
+
+```js
+function changeLanguage(lang){
+    if(!lang) return;
+    // ...
+}
+```
+
+The same situation can happen when firing an event with multiple clickable elements and different action, but then the only choice is to implement the check inside event handler.
 
 ## catching events
 
@@ -47,15 +112,15 @@ events are caught by implementing `on_eventName(event){...}` method for the comp
 
 ## event defaults
 
-`{action:'default', required:true, direction:'parent'}`
+`{required:true, direction:'parent'}`
 
-- `action:'default'` - can be overridden by adding attribute: `action="whatever"`
 - `required: true` - force event handling code to throw error if no handler is found
 - `direction:'parent'` - utility containers like loops, tables or layout utilities should forward the event down 
   - because those containers are used inside a Component's template and intention is for component (who's template we are writing at the moment) to catch the event.
+- `action:` - is not defined and can be defined  by adding attribute: `action="whatever"`
 
 
-## more usage examples
+## firing events
 
 #### 1) fire `save` event 
 
@@ -90,37 +155,6 @@ action is left as an attribute and value is not caught in any way before applyin
 
 - button1 event: `{name:'changeLanguage', action='en'}`
 - button2 event: `{name:'changeLanguage', action='de'}`
-
-#### 4) call `changeLanguage` with parameter
-
-```html
-<button x-click={this.changeLanguage('en')}>{'en'}</button>
-<button x-click={this.changeLanguage('de')}>{'de'}</button>
-```
-#### 5) call a method
-
-```html
-<button x-click={this.showDataTable()}>{'show_data'}</button>
-```
-it is good to keep this in mind: JSX parser will actually wrap the above in arrow function:
-
-```html
-<button x-click={()=>this.showDataTable()}>{'show_data'}</button>
-```
-
-so the code will not be evaluated during render, but passed as code wrapped in arrow function that can be evaluated when needed
-
-#### 4) call a method and use original DOM event and action
-
-```html
-<button x-click={(evt,action)=>this.showDataTable(evt.target,action)}>
-    {'show_data'}
-</button>
-```
-
-The 2 parameters are always provided when calling the function that is part of JSX expression in the value of `x-click`. 
-
-In case no function wrapper was added in the code, the default behaviour of JSX parser will be to add a wrapper around it anyways.
 
 
 
