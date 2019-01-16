@@ -157,6 +157,30 @@ action is left as an attribute and value is not caught in any way before applyin
 - button1 event: `{name:'changeLanguage', action='en'}`
 - button2 event: `{name:'changeLanguage', action='de'}`
 
+## 4) fire `changeLanguage` event with multiple clickable elements and different `action` 
+
+```html
+<div x-click="changeLanguage">
+    Choose language:
+    <button action="en">{'en'}</button>
+    <button action="de">{'de'}</button>
+</div>
+```
+ caught by implementing `on_ChangeLanguage(event){...}`
+
+- button1 event: `{name:'changeLanguage', action='en'}`
+- button2 event: `{name:'changeLanguage', action='de'}`
+
+it is important to check if action has value inside `on_changeLanguage`  function, because user can click somewhere outside the buttons and then the action is undefined.
+
+```js
+function changeLanguage(lang){
+    if(!lang) return;
+    // ...
+}
+```
+
+
 # ------ ----- brainstorm ----- -----
 
 # draft complex examples
