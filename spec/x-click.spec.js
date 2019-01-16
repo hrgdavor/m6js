@@ -17,6 +17,7 @@ describe( 'x-click', function () {
 					<button action="b1">b1</button>
 					<button action="b2">b2</button>
 					<button action="b3" disabled>b3</button>
+					<button>b4</button>
 				</div>
 			</template>;
 		};
@@ -44,6 +45,11 @@ describe( 'x-click', function () {
 		bt3.click();
 		// no change as b3 is disabled
 		expect(comp.saveAction).toEqual('b2');
+
+		var bt4 = bt3.nextSibling;
+		bt4.click();
+		// no change as b3 is disabled
+		expect(comp.saveAction).toEqual(void 0);
 	});
 
 	it(' / x-click component declaration', function () {

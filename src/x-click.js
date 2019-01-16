@@ -19,8 +19,6 @@ j6x._xClickEventData = function(el,evt, end){
 		if(el == end) break;
 		el = el.parentNode;
 	}
-
-	actions.push('default');
 	
 	return {
 			action:actions[0],
