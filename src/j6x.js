@@ -63,6 +63,11 @@ j6x.num = function(str){
     return isNaN(n) ? 0:n;
 };
 
+j6x.logError = function(message, e, data){
+    console.log(message, e, data);
+};
+
+
 /** Uses {@link j6x(core).fixEvent}. Listen for event on an object. Any object that has either 
 addEventListener or attachEvent.
 
