@@ -63,8 +63,9 @@ j6x.num = function(str){
     return isNaN(n) ? 0:n;
 };
 
-j6x.logError = function(message, e, data){
-    console.log(message, e, data);
+j6x.logError = function(message, e, data, _throw){
+    console.log(message || e.message, e, data);
+    if(_throw) throw e;
 };
 
 
@@ -82,15 +83,18 @@ addEventListener or attachEvent.
 j6x.listen = function ( obj, evt, fnc, self, options ){
 
     if(typeof(fnc) == 'string') fnc = self[fnc];
+
     var listener = function(evt){
         fnc.call(self || obj, j6x.fixEvent(evt));
     };
 
     if (obj.addEventListener){
-        obj.addEventListener(evt,listener,options);
-        return function(){obj.removeEventListener(evt,listener,options)};
+        var remover = obj.addEventListener(evt,listener,options);
+        // DOM nodes addEventListener does not return value, but components return remover function 
+        // we can then use that and do not have to create our own
+        return remover || function(){obj.removeEventListener(evt,listener,options)};
     }else{
-        throw new Error('unable to add listener to '+obj);
+        j6x.logError('object does not have addEventListener ', new Error(), obj);
     }
 };
 
@@ -136,7 +140,7 @@ j6x.t = function(code){ return j6x.TRANS[code] || code; }
 j6x.h = function(tag,attr, directive){
     // using j6x.TagDef class for security (if needed)
     // user input that looks like tag definition will not pass "instanceof j6x.TagDef" test
-    return new j6x.TagDef(tag, attr, directive, Array.prototype.slice.call(arguments,2) );
+    return new j6x.TagDef(tag, attr, directive, Array.prototype.slice.call(arguments,3) );
 }
 
 
@@ -212,56 +216,161 @@ j6x.insertAttr = function(n, def_attr, directive, updaters){
     }
 };
 
-j6x.addJsx = function(parent, def, before, updaters, parentComp){
+j6x.addJsx = function(parentNode, def, before, parentComp ){
+    
+    var updaters = parentComp ? parentComp._updaters : [];
 
-    updaters = updaters || [];
     // quote from JSX: false, null, undefined, and true are valid children. They simply don’t render
     // ... so to be inline with React JSX: 
     if( (def instanceof Boolean) || def === void 0 || def === null || def === '' ) return;
 
     if(def instanceof Function){
-        var tmp = new j6x.NodeUpdater(def);
-        def.init(parent, before);
-        updaters.push(tmp);
+
+        if(def.prototype instanceof j6x.comp.Base){
+            j6x.addComp(parentNode, def, null, before, parentComp );
+            
+        }else{
+            var tmp = new j6x.NodeUpdater(def);
+            def.init(parentNode, before);
+            updaters.push(tmp);
+        }
+        
 
     } else if(def instanceof j6x.NodeUpdater){
-        def.init(parent, before);
+
+        def.init(parentNode, before);
         updaters.push(def);
 
     } else if(def instanceof Array){
         def.forEach(function (c) { 
-            j6x.addJsx(parent, c, before, updaters, parentComp);
+            j6x.addJsx(parentNode, c, before, parentComp  );
         });
 
     } else if(def instanceof j6x.TagDef){
         
         if(def.tag == 'template' || def.tag == 'frag'){
-            def.children.forEach(function (c) { 
-                j6x.addJsx(parent, c, before, updaters, parentComp);
+            def.children.forEach(function (c) {
+                j6x.addJsx(parentNode, c, before, parentComp );
             });        
         
         }else{
-            var n = document.createElement(def.tag);
-            if(parentComp) parentComp.initNodeAttr(n, def.attr, def.directive);
-            j6x.insertAttr(n,def.attr, updaters);
-            if(parent) parent.insertBefore(n, before);
-            if (def.children && def.children.length) {
-                j6x.addJsx(n, def.children, null, updaters, parentComp);
+            if(def.tag.prototype instanceof j6x.comp.Base || (def.attr && def.attr.as)){
+                comp = j6x.addComp(parentNode, def, before, parentComp );
+            }else{            
+                
+                var n = document.createElement(def.tag);
+                
+                if(parentComp) parentComp.initNodeAttr(n, def.attr, def.directive);
+                
+                j6x.insertAttr(n,def.attr, updaters);
+
+                if(parentNode) parentNode.insertBefore(n, before);
+                
+                if (def.children && def.children.length) {
+                    j6x.addJsx(n, def.children, null, parentComp );
+                }
+                return n;
             }
-            return n;
         }
     }else{
         // TODO join text node updating and value handling
         if(typeof(def) != 'string') def = ''+def;
 
         var n = document.createTextNode(def);
-        if(parent) parent.insertBefore(n, before);
+        if(parentNode) parentNode.insertBefore(n, before);
         return n;
     }
-    // set attributes immediately if there is no parent component to handle the task
+    // set attributes immediately if there is no parentNode component to handle the task
     if(!parentComp){
         updaters.forEach(function(u){u.update();});
     }
 }
+
+j6x.domEvents = {
+    abort:1,
+    afterprint:1,
+    animationend:1,
+    animationiteration:1,
+    animationstart:1,
+    beforeprint:1,
+    beforeunload:1,
+    blur:1,
+    canplay:1,
+    canplaythrough:1,
+    change:1,
+    click:1,
+    contextmenu:1,
+    copy:1,
+    cut:1,
+    dblclick:1,
+    drag:1,
+    dragend:1,
+    dragenter:1,
+    dragleave:1,
+    dragover:1,
+    dragstart:1,
+    drop:1,
+    durationchange:1,
+    ended:1,
+    error:1,
+    focus:1,
+    focusin:1,
+    focusout:1,
+    fullscreenchange:1,
+    fullscreenerror:1,
+    hashchange:1,
+    input:1,
+    invalid:1,
+    keydown:1,
+    keypress:1,
+    keyup:1,
+    load:1,
+    loadeddata:1,
+    loadedmetadata:1,
+    loadstart:1,
+    message:1,
+    mousedown:1,
+    mouseenter:1,
+    mouseleave:1,
+    mousemove:1,
+    mouseover:1,
+    mouseout:1,
+    mouseup:1,
+    offline:1,
+    online:1,
+    open:1,
+    pagehide:1,
+    pageshow:1,
+    paste:1,
+    pause:1,
+    play:1,
+    playing:1,
+    popstate:1,
+    progress:1,
+    ratechange:1,
+    resize:1,
+    reset:1,
+    scroll:1,
+    search:1,
+    seeked:1,
+    seeking:1,
+    select:1,
+    show:1,
+    stalled:1,
+    storage:1,
+    submit:1,
+    suspend:1,
+    timeupdate:1,
+    toggle:1,
+    touchcancel:1,
+    touchend:1,
+    touchmove:1,
+    touchstart:1,
+    transitionend:1,
+    unload:1,
+    volumechange:1,
+    waiting:1,
+    wheel:1
+};
 
 }());

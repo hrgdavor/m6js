@@ -24,8 +24,10 @@ module.exports = function(config) {
       'src/j6x.js',
       'src/comp.js',
       'src/*.js',
+      'src/util/logUtils.js',
       'src/base/*.js',
 
+       // 'spec/BaseSpec.js',
        'spec/*.js',
        'templateSpec/*.js',
 

@@ -3,22 +3,22 @@
 j6x._xClickCancel = function(el, end){
 	
 	// if disabled at any level 
-	if(el.hasAttribute(j6xJS.disabledAttribute)) return true;
+	if(el.hasAttribute(j6x.disabledAttribute)) return true;
 	
 	// if listen is on the root node of component
 	if(el === end) return false;
 
-	// do not mess with other components
+	// do not mess with other components, except Base (used for in cases where not specified, but needed)
 	comp = el.getAttribute('as');
 	return (comp && el != this.el && !(comp == 'Base' || comp =='Base' )); 
 };
 
-j6x._xClickEventData = function(el,evt, end){
-	var evtNames = [], actions = [], comp, cancelClick = false;
+j6x._xClickEventData = function(el,domEvent, end){
+	var events = [], actions = [], comp, cancelClick = false;
 	while(true){
 		if(j6x._xClickCancel(el, end)) cancelClick = true;
 
-		if(el.hasAttribute('event')) evtNames.push(el.getAttribute('event'));
+		if(el.hasAttribute('event')) events.push(el.getAttribute('event'));
 		if(el.hasAttribute('action')) actions.push(el.getAttribute('action'));
 
 		if(el == end) break;
@@ -27,11 +27,11 @@ j6x._xClickEventData = function(el,evt, end){
 	
 	return {
 			action:actions[0],
-			actions:actions,
-			events:evtNames,
-			name: evtNames[0],
-			domEvent: evt,
-			cancelClick: cancelClick,
+			actions,
+			events,
+			name: events[0],
+			domEvent,
+			cancelClick,
 			target: el,
 			required: true,
 			fireTo: 'parent'

@@ -1,47 +1,18 @@
+See also: 
+
+- [component creation](component.creation.md)
+
+
+
+
+
 # events
 
 - `listen` function returns a callback function that can later be used to remove the listener
 
-# component creation
-
-## create
-
-  - create DOM node for the component
-  - ::`construct(el, parent)` - create new instance
-      - `el` - reference to the new DOM node
-      - `parent` - parent component (can be null)
-  - ::`initAttr(attr, directives, updaters)` - allow component to inspect and tweak own attributes and directives, before they are applied
-      - `attr` - attributes object
-      - `directives` - options for directives (separated from attributes if having `-` in the name like: `x-click`)
-      - `updaters` - array with parent's updaters (functions called when parent state changes)
-  - create `state` and `params` object for the new component
-  - initialize parameters, remove keys that will not be reflected as attributes (... maybe create prop with listeners)
-  - apply attributes and directives not removed by `initAttr` and not used by parameters
-
-**----------- lazy-initialized components stop here until shown (visible) -------------**
-
-## init
-
-  - ::`__init` - internal
-  - ::`template(h, t, state, params, self)` - return JSX template for the component
-      - `h` - required for JSX (do not change the name of this parameter!)
-      - `t` - required for JSX translations (do not change the name of this parameter!)
-      - `state` - state object
-      - `params` - params object
-      - `self` - reference to `this` of the component (optional, use if needed)
-  - `initChildrenJsx(jsx)` - allow component to tweak children jsx (jsx comming from parent template that will go into this component somewhere)
-      - `jsx` -  JSX that parent added between your tags when the component is used
-  - insert child DOM 
-      - simple nodes (DOM node created, but attributes not applied yet and can be inspected for each via `initNodeAttr` 
-      - components ( DOM node and component created, but attributes not applied yet and can be inspected via `initChildAttr`)
-  - ::`initNodeAttr(node, attr, directives, updaters)` - allow component to inspect and tweak node attributes before they are applied
-  - ::`initChildAttr(child, attr, directives, updaters)` - allow component to inspect and tweak child attributes before they are applied
-  - ::`initChildren`- initialize template, child nodes, and components (lazy-loaded and those not visible, will be created, but not initialized)
-  - `on_init` - init event fired on self only
-
 # JSX recognize function is component
 
-`typeof x == 'function' && x.prototype instanceof j6x.NodeWrapper`
+`typeof x == 'function' && x.prototype instanceof j6x.comp.Base`
 
 
 
@@ -51,15 +22,15 @@
 // if NodeUpdater ...
 // .. etc, maybe some other usefull value
 
-// if TagDef insert again (could be a compoennt definition or just nodes with compoennts inside)
+// if TagDef insert again (could be a compoennt definition or just nodes with components inside)
 if(typeof def.tag == 'function'){
-    if(def.tag instanceof j6x.Dom){
+    if(def.tag instanceof j6x.comp.Base){
         // cereate first
     	j6x.addComp(def, node, parent);       
         // init later ... 
     }else{
         var ret = def.tag(def, node, parent);
-        // recurive call to check the value and insert in the same place
+        // recursive call to check the value and insert in the same place
     }
 }
 ```
@@ -69,11 +40,11 @@ if(typeof def.tag == 'function'){
 
 
 # component parameters
-  - for some attributes, it is very useful to be reflected as attribute, as it allows for convenient CSS style targeting.
-      + `disabled` - isEnabled/setEnabled
+  - it is very useful for some attributes, to be reflected as DOM attribute. It allows for convenient CSS style targeting.
+      + `disabled` - isEnabled()/setEnabled(e)
       + `required`
-      + `selected` - isSelected/setSelected
-      + `readonly` - isReadOnly/setReadOnly
+      + `selected` - isSelected()/setSelected(s)
+      + `readonly` - isReadOnly()/setReadOnly(r)
   - trigger render (all,some ... cofigurable ?) - will changing the parameter trigger render 
 
 ```js

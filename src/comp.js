@@ -72,8 +72,9 @@ j6x.getComp = function(name){
 	}
 	if(!compDef) {
 		var msg = 'Component not found: '+name;
-		console.log(msg,el, name);
-		throw new Error(msg);
+		var e = new Error(msg);
+		j6x.logError(msg, e);
+		throw e;
 	}
 	return compDef; 
 };
@@ -84,75 +85,145 @@ j6x.getComp = function(name){
 @function makeComp
 @memberof j6x(comp)
 */
-j6x.addComp = function(parNode, jsx, parent){
-	var node = j6x.addJsx(parNode, jsx, parent);
-	return j6x.makeComp(node, jsx, parent);
-}
-
-/**
- Construct and initialize component, as most code would ecpect the componet
-to be live after created 
-
-@function makeComp
-@memberof j6x(comp)
-
-*/
-j6x.makeComp = function(el, jsx, parent){
-	var c = j6x.constructComp(el, jsx, parent);
-	if(!c.lazyInit) c.__init();
-	return c;
-};
-
-/**
-Just construct the component without initialization. This is mostly used during 
-automatic component template parsing (parseChildren) and initialization is done
- in the second run on all previously created components 
-
-@function constructComp
-@memberof j6x(comp)
- */
-j6x.constructComp = function(el, jsx, parent, updaters){
+j6x.addComp = function(parentNode, jsx, before, parent){
 	try{
 
-		// sanitize, to allow === null check to work later
-		if(!parent) parent = null;
+		// jsx.tag is either tagName or reference to component class
+		var tagName = jsx.tag;
+		var compDef = tagName;
 
-		var compName = el.getAttribute('as') || (jsx.attr ? jsx.attr.as: 'Base');
+		var attr = jsx.attr;
+		var directive = jsx.directive;
 
-		el.setAttribute('as', compName);
-		el.compRefId = compData.__counterSeq++;
+		// component name is in the attributes
+		if(typeof(tagName) == 'string'){
+			// if component name is not specified, 'Base' is used
+			var compName =  'Base';
+			if(attr && attr.as) compName = attr.as;
 
-		var compDef = this.getComp(compName, el);
-		var c = new compDef();
-		c.construct(el, jsx.attr, jsx.directive, parent);
-		c.setParent(parent);
-		updaters = updaters || (parent ? parent._updaters : []);
-
-		if(el.jsxAttr){
-			if(parent) parent.initChildAttr(c, el.jsxAttr, updaters);
-			c.initAttr(el.jsxAttr, updaters );
-			delete el.jsxAttr;
+			compDef = this.getComp(compName);
+		}else{
+			// since in this case jsx.tag is a component class reference
+			// we need to give tagName a valid default value
+			tagName = 'DIV';
 		}
 
-		if(el.jsxChildren){
-			el.jsxChildren = c.initChildrenJsx(el.jsxChildren);
-			j6x.insertHtml(el, el.jsxChildren, null, updaters);
-			delete el.jsxChildren;
+		var newComp = new compDef();
+		newComp._jsxChildren = jsx.children;
+
+		// we do not have a classic constructor available to override, so components
+		// have this method as replacement if needed ot initialize anything early
+		newComp.construct();
+
+		// root component does not have a parent
+		if(parent){
+			newComp.setParent(parent);
+			parent.initChildAttr(newComp, attr, directive)
 		}
-		c.fireEvent('create');
-		return c;
+		// allow component to
+		newComp.initAttr(attr, directive );
+
+		// component is given chance to provide the tagName
+		var el = document.createElement(newComp.tagName() || tagName);
+
+		if(parentNode) parentNode.insertBefore(el, before);
+
+		// allow component to save reference to the DOM node, and also 
+		newComp.attach(el);
+		
+		newComp.applyAttr(attr, directive);
+
+		newComp.fireEvent('create');
+
+		if(newComp.isVisible()){
+			newComp.fireEvent('show');
+		}
+
+		return newComp;
 
 	}catch(e){
 		// log the component and the node where the error happened
 		// this will occur for each parent too as the error is rethrown
 		// and error will show up in console for inspection of execution stack
-		console.log('error while creating a component ',compName, el, '\ninside the component ', parent,'\n', e);
-		throw e;
+		j6x.logError('error while creating a component '+compName, e, {el, parent}, 1);
 	}
 };
 
+/** 
+p       access by
+value        calling
+--------------------------
+info      |  obj.info
+img.      |  obj.img[0]
+img.      |  obj.img[1]
+bt.edit   |  obj.bt.edit
+bt.save   |  obj.bt.save
 
+@function setRef
+@memberof j6x(core)
+*/
+j6x.setRef = function(obj, comp, prop){
+	if(!prop) return;
 
+	var idx = -1;
+	if(prop){
+		if( (idx=prop.indexOf('.')) != -1){
+			var group = prop.substring(0,idx);
+			prop = prop.substring(idx+1);
+			comp.__propGroup = group;
+			if(prop){
+				//example: p="bt.edit"
+				if(!obj[group]){
+					obj[group] = {};
+					obj['$'+group] = new j6x.NWGroup(obj[group]);
+				} 
+				comp.__propName  = prop;
+                if(obj[group][prop]) logPropTaken(group+'.'+prop, obj, obj[group][prop]);
+                obj[group][prop] = comp;
+            }else{
+                //example: p="bt."
+				if(!obj[group]){
+					obj[group] = [];
+					obj['$'+group] = new j6x.NWGroup(obj[group]);
+				} 
+                comp.__propName = obj[group].length;
+				obj[group].push(comp);
+			}
+		}else{
+			//example p="edit"
+            if(obj[prop]) logPropTaken(prop, obj, obj[prop]);
+			comp.__propName = prop;
+			obj[prop] = comp;
+		}
+	}
+};
+
+var _dirtyComps = new Set();
+var _dirtyCompsTimer = null;
+
+function dirtyCompRunner(comp){
+	for(var comp of _dirtyComps){
+		try{
+			comp.runUpdaters();
+		}catch (e){
+			j6x.logError('Unable to run updater', e, {comp});
+		}
+	}
+	_dirtyComps.clear();
+	_dirtyCompsTimer = null;
+}
+
+/** Add component to the set. In next animation frame, all components from
+the set will be updated (method runUpdaters() will be called).
+@namespace j6x(comp)
+
+@function markDirtyComp
+@memberof j6x(comp)
+*/
+j6x.markDirtyComp = function(comp){
+	j6x._dirtyComps.add(comp);
+	if(!_dirtyCompsTimer) _dirtyCompsTimer = requestAnimationFrame(dirtyCompRunner);
+};
 
 
 }(j6x));
