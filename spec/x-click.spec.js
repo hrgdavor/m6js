@@ -26,8 +26,6 @@ describe( 'x-click', function () {
 
 	it(' / x-click node', function () {
 		var comp = j6x.addComp(null, <b as="test.XClickTestJsx"/>);
-
-		
 		comp.el.firstChild.click();
 
 		expect(comp.saveContext).toEqual(11);
