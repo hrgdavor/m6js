@@ -52,7 +52,7 @@ j6x._xClickListen = function(n, attrValue, updaters, parentComp){
 
 			if(typeof attrValue == 'function'){
 				context = attrValue(evt, evtData.action);
-			}else if(typeof attrValue == 'string'){
+			}else if(typeof attrValue == 'string' && !evtData.name){
 				evtData.name = attrValue;
 			}
 
