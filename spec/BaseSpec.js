@@ -21,6 +21,33 @@ describe( 'Base.js ', function () {
 
 	});
 
+	j6x.addCompClass('test/FormTest1', 'Base', 
+	function(h,t,proto, superProto, comp, superClass){
+
+		proto.template = function(state, params, self){
+			return <div>
+				<input p="items.name"/>
+				<input p="items.gender"/>
+			</div>;
+		};
+
+	});
+
+	j6x.addCompClass('test/FormTest2', 'Base', 
+	function(h,t,proto, superProto, comp, superClass){
+
+		proto.template = function(state, params, self){
+			return <div>
+				<input name="name"/>
+				<input name="gender"/>
+			</div>;
+		};
+
+	});
+
+
+
+
 	function logStack(message){
 		var err = new Error();
 		console.log(message, err.stack);
@@ -107,6 +134,14 @@ describe( 'Base.js ', function () {
 		comp.setVisible(true);
 		expect(comp.child.on_show_count).toEqual(1);
 
+	});
+
+	it(' / FormTest1', function () {
+		var comp = j6x.addComp(null,<b as="test/FormTest1"/>);
+
+		expect(comp.el.innerHTML).toEqual('<div><input p="items.name"><input p="items.gender"></div>');
+		console.log('comp.items.name',comp.items.name);
+		comp.$items.setValue({name:'name-val', gender:'gender-val'});
 	});
 
 });

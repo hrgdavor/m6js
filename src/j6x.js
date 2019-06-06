@@ -216,6 +216,8 @@ j6x.insertAttr = function(n, def_attr, directive, updaters){
     }
 };
 
+var inputNames = {INPUT:1, SELECT:1, TEXTAREA:1};
+
 j6x.addJsx = function(parentNode, def, before, parentComp ){
     
     var updaters = parentComp ? parentComp._updaters : [];
@@ -254,6 +256,10 @@ j6x.addJsx = function(parentNode, def, before, parentComp ){
             });        
         
         }else{
+            if(typeof(def.tag) == 'string' && inputNames[def.tag.toUpperCase()]){
+                if(!def.attr) def.attr = {};
+                if(!def.attr.as) def.attr.as = 'base.Input';
+            }
             if(def.tag.prototype instanceof j6x.comp.Base || (def.attr && def.attr.as)){
                 comp = j6x.addComp(parentNode, def, before, parentComp );
             }else{            

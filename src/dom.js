@@ -90,8 +90,8 @@ j6x.dom = function(node, root){
 }
 
 /** 
-Create a html node, and returns a {@link j6x(core).NodeWrapper}. Uses {@link j6x(html).addTag} with same parameters <br>
-but returns the created node wrapped with {@link j6x(core).NodeWrapper}.
+Create a html node, and returns a {@link j6x(core).Dom}. Uses {@link j6x(html).addTag} with same parameters <br>
+but returns the created node wrapped with {@link j6x(core).Dom}.
 
 @function add
 @memberof j6x(html)
@@ -118,7 +118,7 @@ j6x.dom_register = function(name, returnValue, func){
 
 @instance
 @method hasAttr
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 */
 j6x.dom_register('hasAttr', true, function(node, name, val){
 	return node.hasAttribute(name);
@@ -130,7 +130,7 @@ will remove the attribute.
 
 @instance
 @method attr
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 
 @param {String} name attribute name
 @param {String} value optionaly if sent sets the attribute
@@ -151,7 +151,7 @@ j6x.dom_register('attr', false, function(node, name, val){
 
 @instance
 @method attrStr
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 @param {string} name attribute name
 @param {object} def default value if attribute is not present
 */
@@ -165,7 +165,7 @@ if attribute is not present.
 
 @instance
 @method attrNum
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 @param {string} name attribute name
 @param {object} def default value if attribute is not present
 */
@@ -177,7 +177,7 @@ j6x.dom_register('attrNum', true, function(name, def){
 
 @instance
 @method attrBoolean
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 @param {string} name attribute name
 @param {object} def default value if attribute is not present
 
@@ -205,7 +205,7 @@ j6x.dom_register('attrBoolean', true, function(node, name, def){
 
 @function classIf
 @instance
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 	@param toAdd - className to add/remove 
 	@param condition - (true/false) determines if add/remove is executed. Usualy a result of an expression in the caller code. 
 */
@@ -219,7 +219,7 @@ j6x.dom_register('classIf', false, function(node, toAdd, condition){
 /*** Same as classIf but reversed condition. 
 @function classUnless
 @instance
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 */
 j6x.dom_register('classUnless', false, function(node, toAdd, condition){
 	if(condition)
@@ -231,7 +231,7 @@ j6x.dom_register('classUnless', false, function(node, toAdd, condition){
 /** Add a css class to the element. Common function to initiate change defined in css. 
 @function addClass
 @instance
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 */
 j6x.dom_register('addClass', false, function(node, toAdd){
 	node.classList.add(toAdd);
@@ -240,7 +240,7 @@ j6x.dom_register('addClass', false, function(node, toAdd){
 /** Check if one of space separated values is in the element's className 
 @function hasClass
 @instance
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 */
 j6x.dom_register('hasClass', true, function(node, name){
 	return node.classList.contains(name);
@@ -249,7 +249,7 @@ j6x.dom_register('hasClass', true, function(node, name){
 /** Check if node has a class and toggle it
 @function hasClass
 @instance
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 */
 j6x.dom_register('toggleClass', true, function(node, name){
 	return node.classList.toggle(name);
@@ -258,7 +258,7 @@ j6x.dom_register('toggleClass', true, function(node, name){
 /** Remove a css class from the element (leaving others intact) 
 @function removeClass
 @instance
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 */
 j6x.dom_register('removeClass', true, function(node, toRemove){
 	if(node.classList.length)
@@ -268,7 +268,7 @@ j6x.dom_register('removeClass', true, function(node, toRemove){
 /*
 @function setText
 @instance
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 */
 j6x.dom_register('setText', false, function(node, text){
 	if(node.textContent !== text) node.textContent = text;
@@ -277,7 +277,7 @@ j6x.dom_register('setText', false, function(node, text){
 /*
 @function getText
 @instance
-@memberof j6x(core).NodeWrapper
+@memberof j6x(core).Dom
 */
 j6x.dom_register('getText', true, function(node){
 	return node.textContent;

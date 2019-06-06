@@ -162,20 +162,23 @@ bt.save   |  obj.bt.save
 @function setRef
 @memberof j6x(core)
 */
-j6x.setRef = function(obj, comp, prop){
-	if(!prop) return;
+j6x.setRef = function(obj, comp, prop, group){
 
 	var idx = -1;
-	if(prop){
+	if(prop || group){
+		
 		if( (idx=prop.indexOf('.')) != -1){
-			var group = prop.substring(0,idx);
+			group = prop.substring(0,idx);
 			prop = prop.substring(idx+1);
+			// TODO allow multiple levels
+			j6x.setRef(obj, comp, prop, group);
+		}else if(group){
 			comp.__propGroup = group;
 			if(prop){
 				//example: p="bt.edit"
 				if(!obj[group]){
 					obj[group] = {};
-					obj['$'+group] = new j6x.NWGroup(obj[group]);
+					obj['$'+group] = new j6x.NGroup(obj[group]);
 				} 
 				comp.__propName  = prop;
                 if(obj[group][prop]) logPropTaken(group+'.'+prop, obj, obj[group][prop]);
@@ -184,7 +187,7 @@ j6x.setRef = function(obj, comp, prop){
                 //example: p="bt."
 				if(!obj[group]){
 					obj[group] = [];
-					obj['$'+group] = new j6x.NWGroup(obj[group]);
+					obj['$'+group] = new j6x.NGroup(obj[group]);
 				} 
                 comp.__propName = obj[group].length;
 				obj[group].push(comp);

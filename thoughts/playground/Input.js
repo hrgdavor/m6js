@@ -4,11 +4,12 @@ function(h,t,proto, superProto, comp, superComp){
 	var base = j6x.base;
 
 	proto.defaultClass = 'base-input';
-	proto.state = {
+	// comp.state holds definition
+	comp.state = {
 
 	};
 
-	proto.params = {
+	comp.params = {
 
 	};
 

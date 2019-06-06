@@ -204,14 +204,19 @@ function(h,t,proto, superProto, comp, superClass){
 
 	proto.inspectChildrenJsx = function(jsxArr){};
 	
+	function _setRef(obj, c, attr){
+		if(attr.p)    j6x.setRef(obj, c, attr.p);
+		if(attr.name) j6x.setRef(obj, c, attr.name, 'items');		
+	}
+
 	proto.initNodeAttr = function(n, attr, directive){
-		if(attr && attr.p) j6x.setRef(this,new j6x.NodeWrapper(n),attr.p);
+		if(attr) _setRef(this, new j6x.Dom(n), attr);
 
 		if(directive) j6x.runAttrDirective(n, null, directive, this._updaters, this);
 	};
 
 	proto.initChildAttr = function(c, attr, directive){
-		if(attr && attr.p) j6x.setRef(this, c, attr.p);
+		if(attr) _setRef(this, c, attr);
 		
 		if(directive) j6x.runAttrDirective(c.el, c, directive, this._updaters, this);
 	};
