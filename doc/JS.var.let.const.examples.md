@@ -13,7 +13,8 @@ function x(){
 x();
 /* Uncaught SyntaxError: Identifier 'a' has already been declared */ 
 ```
-both `let` and `const`
+`var` does not care about duplicate declaration (it is still not wise to do it, and it is good that `let` and `const` are more strict in this regard)
+
 ```js
 function x(){
 	var a = 1;
