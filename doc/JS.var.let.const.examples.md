@@ -61,7 +61,7 @@ x();
 
 ## `var`, `let`, `const`
 
-`var` is scoped to the function, so it is visible, `let`, `const` also work here, and if declared once, behave same as var
+`var` is scoped to the function, so it is visible. `let`, `const` also work here instead. Because in this case, since  variable is declared only once, they behave the same way as `var` .
 
 ```js
 function x(){
