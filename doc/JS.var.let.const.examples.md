@@ -37,8 +37,8 @@ function x(){
 	if(a==1){
 		const a = 2;
 		console.log(a);// 2
-    }
-	console.log(a);// 1    <------------ difference
+	}
+	console.log(a);// 1	<------------ difference
 }
 x();
 ```
@@ -52,8 +52,8 @@ function x(){
 	if(a==1){
 		var a = 2;
 		console.log(a);// 2
-    }
-	console.log(a);// 2    <------------- difference
+	}
+	console.log(a);// 2	<------------- difference
 }
 x();
 ```
@@ -67,7 +67,7 @@ function x(){
 	if(true){
 		var a = 2;
 		console.log(a);// 2
-    }
+	}
 	console.log(a);// 2
 }
 x();
